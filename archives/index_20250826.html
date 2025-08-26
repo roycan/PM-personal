@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en" class="has-background-light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Project Log</title>
+    
+    <!-- Bulma CSS Framework -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- FullCalendar JS and CSS for the calendar view -->
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
+
+    <style>
+        /* Custom styles to enhance the look and feel */
+        html, body {
+            height: 100%;
+            overflow-y: auto;
+        }
+        .main-container {
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+        .project-list-container {
+            height: calc(100vh - 200px);
+            overflow-y: auto;
+            border-right: 1px solid #dbdbdb;
+        }
+        .log-entry-form, .analysis-view, .calendar-view {
+            display: none; /* Hidden by default, shown on project selection */
+        }
+        .is-active-view {
+            display: block !important;
+        }
+        .project-item {
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .project-item:hover, .project-item.is-active {
+            background-color: #f0f0f0;
+        }
+        .fc-event {
+            cursor: pointer;
+        }
+        .delete-project {
+            display: none;
+            margin-left: auto;
+        }
+        .project-item:hover .delete-project {
+            display: inline-flex;
+        }
+        #calendar {
+            max-height: 600px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main Application Header -->
+    <section class="section pt-4 pb-4 has-background-white shadow-sm">
+        <div class="container">
+            <div class="level">
+                <div class="level-left">
+                    <div class="level-item">
+                        <h1 class="title is-3">
+                            <span class="icon-text">
+                                <span class="icon"><i class="fas fa-book"></i></span>
+                                <span>Personal Project Log</span>
+                            </span>
+                        </h1>
+                    </div>
+                </div>
+                <div class="level-right">
+                    <div class="level-item">
+                        <div class="buttons">
+                            <button id="import-btn" class="button is-info is-light">
+                                <span class="icon"><i class="fas fa-upload"></i></span>
+                                <span>Import Data</span>
+                            </button>
+                            <button id="export-btn" class="button is-info">
+                                <span class="icon"><i class="fas fa-download"></i></span>
+                                <span>Export Data</span>
+                            </button>
+                            <input type="file" id="import-file" accept=".json" style="display: none;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Application Body -->
+    <section class="section main-container">
+        <div class="container">
+            <div class="columns">
+                <!-- Left Column: Project List -->
+                <div class="column is-one-quarter project-list-container">
+                    <div class="box">
+                        <h2 class="title is-5">My Projects</h2>
+                        <form id="add-project-form" class="mb-4">
+                            <div class="field has-addons">
+                                <div class="control is-expanded">
+                                    <input id="new-project-name" class="input" type="text" placeholder="New project name..." required>
+                                </div>
+                                <div class="control">
+                                    <button class="button is-primary">
+                                        <span class="icon"><i class="fas fa-plus"></i></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                        <div id="project-list">
+                            <!-- Projects will be dynamically inserted here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Content Display -->
+                <div class="column">
+                    <div id="welcome-message" class="box has-text-centered">
+                        <p class="is-size-5">Select a project to view its logs or add a new entry.</p>
+                    </div>
+
+                    <div id="project-content" style="display: none;">
+                        <div class="box">
+                            <h2 id="current-project-title" class="title is-4"></h2>
+                             <div class="tabs is-boxed">
+                                <ul>
+                                    <li class="is-active" data-tab="log-entry"><a><span class="icon is-small"><i class="fas fa-plus-circle"></i></span><span>Add Log</span></a></li>
+                                    <li data-tab="calendar-view"><a><span class="icon is-small"><i class="fas fa-calendar-alt"></i></span><span>Calendar View</span></a></li>
+                                    <li data-tab="analysis-view"><a><span class="icon is-small"><i class="fas fa-chart-line"></i></span><span>Analysis</span></a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Log Entry Form -->
+                        <div id="log-entry" class="tab-content is-active-view">
+                            <div class="box">
+                                <h3 class="title is-5">Log New Entry</h3>
+                                <form id="log-form">
+                                    <input type="hidden" id="log-id">
+                                    <div class="field">
+                                        <label class="label" for="log-date">Date</label>
+                                        <div class="control">
+                                            <input id="log-date" class="input" type="date" required>
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label class="label" for="log-results">Key Results</label>
+                                        <div class="control">
+                                            <textarea id="log-results" class="textarea" placeholder="What did you accomplish?" required></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label class="label" for="log-observations">Observations</label>
+                                        <div class="control">
+                                            <textarea id="log-observations" class="textarea" placeholder="Any interesting findings or challenges?"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label class="label" for="log-reflections">Reflections</label>
+                                        <div class="control">
+                                            <textarea id="log-reflections" class="textarea" placeholder="How did it go? What could be improved?"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="field is-grouped">
+                                        <div class="control">
+                                            <button type="submit" class="button is-link">Save Log Entry</button>
+                                        </div>
+                                        <div class="control">
+                                            <button type="button" id="clear-form-btn" class="button is-light">Clear Form</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Calendar View -->
+                        <div id="calendar-view" class="tab-content calendar-view">
+                            <div class="box">
+                                <div id="calendar"></div>
+                            </div>
+                        </div>
+
+                        <!-- Analysis View -->
+                        <div id="analysis-view" class="tab-content analysis-view">
+                            <div class="box">
+                                <h3 class="title is-5">Project Analytics</h3>
+                                <nav class="level is-mobile">
+                                    <div class="level-item has-text-centered">
+                                        <div>
+                                            <p class="heading">Total Logs</p>
+                                            <p id="total-logs" class="title">0</p>
+                                        </div>
+                                    </div>
+                                    <div class="level-item has-text-centered">
+                                        <div>
+                                            <p class="heading">First Log</p>
+                                            <p id="first-log-date" class="title">N/A</p>
+                                        </div>
+                                    </div>
+                                    <div class="level-item has-text-centered">
+                                        <div>
+                                            <p class="heading">Last Log</p>
+                                            <p id="last-log-date" class="title">N/A</p>
+                                        </div>
+                                    </div>
+                                </nav>
+                                <hr>
+                                <h4 class="title is-6">Log Activity (Last 30 Days)</h4>
+                                <progress id="activity-bar" class="progress is-success" value="0" max="30"></progress>
+                                <p id="activity-text">0 / 30 days with activity.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal for viewing/editing a log entry -->
+    <div id="log-modal" class="modal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title">Log Entry Details</p>
+                <button class="delete" aria-label="close"></button>
+            </header>
+            <section class="modal-card-body">
+                <p><strong>Project:</strong> <span id="modal-project-name"></span></p>
+                <p class="mb-4"><strong>Date:</strong> <span id="modal-log-date"></span></p>
+                <div class="content">
+                    <h4>Key Results</h4>
+                    <p id="modal-log-results"></p>
+                    <h4>Observations</h4>
+                    <p id="modal-log-observations"></p>
+                    <h4>Reflections</h4>
+                    <p id="modal-log-reflections"></p>
+                </div>
+            </section>
+            <footer class="modal-card-foot">
+                <button id="edit-log-btn" class="button is-info">Edit</button>
+                <button id="delete-log-btn" class="button is-danger">Delete</button>
+                <button class="button modal-close-btn">Close</button>
+            </footer>
+        </div>
+    </div>
+
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // DOM Element References
+        const addProjectForm = document.getElementById('add-project-form');
+        const newProjectNameInput = document.getElementById('new-project-name');
+        const projectList = document.getElementById('project-list');
+        const logForm = document.getElementById('log-form');
+        const welcomeMessage = document.getElementById('welcome-message');
+        const projectContent = document.getElementById('project-content');
+        const currentProjectTitle = document.getElementById('current-project-title');
+        const tabs = document.querySelectorAll('.tabs li');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const clearFormBtn = document.getElementById('clear-form-btn');
+
+        // Modal elements
+        const logModal = document.getElementById('log-modal');
+        const modalCloseBtns = document.querySelectorAll('.modal-background, .modal-close-btn, .modal-card-head .delete');
+
+        // Data storage
+        let projects = [];
+        let logs = [];
+        let activeProjectId = null;
+        let calendar;
+
+        // --- DATA MANAGEMENT ---
+
+        /**
+        * Generates a unique ID
+        * @returns {string} A unique identifier
+        */
+        const generateId = () => `id_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+        /**
+        * Loads projects and logs from Local Storage
+        */
+        const loadData = () => {
+            const storedProjects = localStorage.getItem('projectLog_projects');
+            const storedLogs = localStorage.getItem('projectLog_logs');
+            projects = storedProjects ? JSON.parse(storedProjects) : [];
+            logs = storedLogs ? JSON.parse(storedLogs) : [];
+        };
+
+        /**
+        * Saves projects and logs to Local Storage
+        */
+        const saveData = () => {
+            localStorage.setItem('projectLog_projects', JSON.stringify(projects));
+            localStorage.setItem('projectLog_logs', JSON.stringify(logs));
+        };
+
+        // --- UI RENDERING ---
+
+        /**
+        * Renders the list of projects
+        */
+        const renderProjects = () => {
+            projectList.innerHTML = '';
+            if (projects.length === 0) {
+                projectList.innerHTML = '<p class="has-text-grey">No projects yet. Add one to get started!</p>';
+            } else {
+                projects.forEach(project => {
+                    const projectDiv = document.createElement('div');
+                    projectDiv.className = `panel-block project-item ${project.id === activeProjectId ? 'is-active' : ''}`;
+                    projectDiv.dataset.id = project.id;
+                    projectDiv.innerHTML = `
+                        <span class="panel-icon"><i class="fas fa-folder"></i></span>
+                        ${project.name}
+                        <button class="button is-danger is-small is-rounded delete-project" data-id="${project.id}">
+                            <span class="icon is-small"><i class="fas fa-trash"></i></span>
+                        </button>
+                    `;
+                    projectList.appendChild(projectDiv);
+                });
+            }
+        };
+        
+        /**
+         * Initializes or re-renders the FullCalendar instance
+         */
+        const renderCalendar = () => {
+            const calendarEl = document.getElementById('calendar');
+            if (!calendarEl) return;
+
+            const projectLogs = logs.filter(log => log.projectId === activeProjectId);
+            const events = projectLogs.map(log => ({
+                id: log.id,
+                title: log.results.substring(0, 20) + '...',
+                start: log.date,
+                allDay: true,
+                extendedProps: {
+                    projectId: log.projectId
+                }
+            }));
+            
+            if (calendar) {
+                calendar.removeAllEvents();
+                calendar.addEventSource(events);
+            } else {
+                 calendar = new FullCalendar.Calendar(calendarEl, {
+                    initialView: 'dayGridMonth',
+                    headerToolbar: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'dayGridMonth,timeGridWeek,listWeek'
+                    },
+                    events: events,
+                    eventClick: function(info) {
+                        const logId = info.event.id;
+                        showLogModal(logId);
+                    }
+                });
+            }
+            calendar.render();
+        };
+
+        /**
+         * Calculates and displays project analytics
+         */
+        const renderAnalysis = () => {
+            const projectLogs = logs.filter(log => log.projectId === activeProjectId);
+            
+            const totalLogsEl = document.getElementById('total-logs');
+            const firstLogDateEl = document.getElementById('first-log-date');
+            const lastLogDateEl = document.getElementById('last-log-date');
+            const activityBar = document.getElementById('activity-bar');
+            const activityText = document.getElementById('activity-text');
+
+            totalLogsEl.textContent = projectLogs.length;
+
+            if (projectLogs.length > 0) {
+                const sortedLogs = [...projectLogs].sort((a, b) => new Date(a.date) - new Date(b.date));
+                firstLogDateEl.textContent = sortedLogs[0].date;
+                lastLogDateEl.textContent = sortedLogs[sortedLogs.length - 1].date;
+
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                
+                const activeDays = new Set(
+                    sortedLogs
+                        .filter(log => new Date(log.date) >= thirtyDaysAgo)
+                        .map(log => log.date)
+                ).size;
+                
+                activityBar.value = activeDays;
+                activityText.textContent = `${activeDays} / 30 days with activity.`;
+
+            } else {
+                firstLogDateEl.textContent = 'N/A';
+                lastLogDateEl.textContent = 'N/A';
+                activityBar.value = 0;
+                activityText.textContent = '0 / 30 days with activity.';
+            }
+        };
+
+
+        // --- EVENT HANDLERS ---
+
+        /**
+        * Handles adding a new project
+        */
+        addProjectForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const projectName = newProjectNameInput.value.trim();
+            if (projectName) {
+                const newProject = {
+                    id: generateId(),
+                    name: projectName
+                };
+                projects.push(newProject);
+                newProjectNameInput.value = '';
+                saveData();
+                renderProjects();
+                selectProject(newProject.id); // Automatically select the new project
+            }
+        });
+
+        /**
+        * Handles clicking on a project in the list
+        */
+        projectList.addEventListener('click', (e) => {
+            const projectItem = e.target.closest('.project-item');
+            const deleteButton = e.target.closest('.delete-project');
+
+            if (deleteButton) {
+                e.stopPropagation(); // Prevent project selection when deleting
+                const projectId = deleteButton.dataset.id;
+                if (confirm('Are you sure you want to delete this project and all its logs? This cannot be undone.')) {
+                    deleteProject(projectId);
+                }
+                return;
+            }
+
+            if (projectItem) {
+                const projectId = projectItem.dataset.id;
+                selectProject(projectId);
+            }
+        });
+
+        /**
+         * Handles log form submission
+         */
+        logForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const logId = document.getElementById('log-id').value;
+            const logData = {
+                projectId: activeProjectId,
+                date: document.getElementById('log-date').value,
+                results: document.getElementById('log-results').value,
+                observations: document.getElementById('log-observations').value,
+                reflections: document.getElementById('log-reflections').value,
+            };
+
+            if (logId) {
+                // Update existing log
+                const index = logs.findIndex(log => log.id === logId);
+                if (index !== -1) {
+                    logs[index] = { ...logs[index], ...logData };
+                }
+            } else {
+                // Add new log
+                logData.id = generateId();
+                logs.push(logData);
+            }
+            
+            saveData();
+            clearLogForm();
+            renderCalendar();
+            renderAnalysis();
+            alert('Log entry saved successfully!');
+        });
+
+        /**
+         * Handles tab switching
+         */
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(item => item.classList.remove('is-active'));
+                tab.classList.add('is-active');
+
+                const targetId = tab.dataset.tab;
+                tabContents.forEach(content => {
+                    content.classList.remove('is-active-view');
+                    if (content.id === targetId) {
+                        content.classList.add('is-active-view');
+                    }
+                });
+                // Re-render calendar if it becomes visible
+                if(targetId === 'calendar-view') {
+                    // A slight delay ensures the container is visible before rendering
+                    setTimeout(() => calendar.render(), 10);
+                }
+            });
+        });
+
+        // --- HELPER FUNCTIONS ---
+
+        /**
+        * Selects a project and displays its content
+        * @param {string} projectId The ID of the project to select
+        */
+        const selectProject = (projectId) => {
+            activeProjectId = projectId;
+            const project = projects.find(p => p.id === projectId);
+            if (project) {
+                welcomeMessage.style.display = 'none';
+                projectContent.style.display = 'block';
+                currentProjectTitle.textContent = project.name;
+                
+                // Reset to the 'Add Log' tab
+                tabs.forEach(tab => {
+                    tab.classList.remove('is-active');
+                    if (tab.dataset.tab === 'log-entry') tab.classList.add('is-active');
+                });
+                tabContents.forEach(content => {
+                    content.classList.remove('is-active-view');
+                    if (content.id === 'log-entry') content.classList.add('is-active-view');
+                });
+
+                clearLogForm();
+                renderProjects(); // Re-render to highlight the active project
+                renderCalendar();
+                renderAnalysis();
+            }
+        };
+
+        /**
+         * Deletes a project and its associated logs
+         * @param {string} projectId The ID of the project to delete
+         */
+        const deleteProject = (projectId) => {
+            projects = projects.filter(p => p.id !== projectId);
+            logs = logs.filter(l => l.projectId !== projectId);
+            
+            if (activeProjectId === projectId) {
+                activeProjectId = null;
+                projectContent.style.display = 'none';
+                welcomeMessage.style.display = 'block';
+            }
+            
+            saveData();
+            renderProjects();
+        };
+
+        /**
+         * Clears the log entry form
+         */
+        const clearLogForm = () => {
+            logForm.reset();
+            document.getElementById('log-id').value = '';
+            // Set date to today by default for new entries
+            document.getElementById('log-date').valueAsDate = new Date();
+        };
+        clearFormBtn.addEventListener('click', clearLogForm);
+
+
+        // --- MODAL LOGIC ---
+        
+        /**
+         * Opens and populates the log detail modal
+         * @param {string} logId The ID of the log to display
+         */
+        const showLogModal = (logId) => {
+            const log = logs.find(l => l.id === logId);
+            if (!log) return;
+
+            const project = projects.find(p => p.id === log.projectId);
+
+            document.getElementById('modal-project-name').textContent = project ? project.name : 'Unknown';
+            document.getElementById('modal-log-date').textContent = log.date;
+            document.getElementById('modal-log-results').textContent = log.results || 'N/A';
+            document.getElementById('modal-log-observations').textContent = log.observations || 'N/A';
+            document.getElementById('modal-log-reflections').textContent = log.reflections || 'N/A';
+            
+            // Store logId in buttons for actions
+            document.getElementById('edit-log-btn').dataset.logId = logId;
+            document.getElementById('delete-log-btn').dataset.logId = logId;
+
+            logModal.classList.add('is-active');
+        };
+
+        const closeLogModal = () => {
+            logModal.classList.remove('is-active');
+        };
+
+        modalCloseBtns.forEach(btn => btn.addEventListener('click', closeLogModal));
+        
+        document.getElementById('edit-log-btn').addEventListener('click', (e) => {
+            const logId = e.target.dataset.logId;
+            const log = logs.find(l => l.id === logId);
+            if(log) {
+                // Populate the main form for editing
+                document.getElementById('log-id').value = log.id;
+                document.getElementById('log-date').value = log.date;
+                document.getElementById('log-results').value = log.results;
+                document.getElementById('log-observations').value = log.observations;
+                document.getElementById('log-reflections').value = log.reflections;
+
+                // Switch to the 'Add Log' tab
+                tabs.forEach(tab => {
+                    tab.classList.remove('is-active');
+                    if (tab.dataset.tab === 'log-entry') tab.classList.add('is-active');
+                });
+                tabContents.forEach(content => {
+                    content.classList.remove('is-active-view');
+                    if (content.id === 'log-entry') content.classList.add('is-active-view');
+                });
+                
+                closeLogModal();
+            }
+        });
+
+        document.getElementById('delete-log-btn').addEventListener('click', (e) => {
+            const logId = e.target.dataset.logId;
+            if (confirm('Are you sure you want to delete this log entry?')) {
+                logs = logs.filter(l => l.id !== logId);
+                saveData();
+                renderCalendar();
+                renderAnalysis();
+                closeLogModal();
+            }
+        });
+
+        // --- IMPORT/EXPORT LOGIC ---
+        const exportBtn = document.getElementById('export-btn');
+        const importBtn = document.getElementById('import-btn');
+        const importFile = document.getElementById('import-file');
+
+        exportBtn.addEventListener('click', () => {
+            const dataToExport = {
+                projects: projects,
+                logs: logs
+            };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataToExport, null, 2));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", `project_log_backup_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        });
+
+        importBtn.addEventListener('click', () => {
+            importFile.click();
+        });
+
+        importFile.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    if (importedData.projects && importedData.logs) {
+                        if (confirm('This will overwrite all current data. Are you sure you want to proceed?')) {
+                            projects = importedData.projects;
+                            logs = importedData.logs;
+                            activeProjectId = null;
+                            saveData();
+                            // Reset UI
+                            projectContent.style.display = 'none';
+                            welcomeMessage.style.display = 'block';
+                            renderProjects();
+                        }
+                    } else {
+                        alert('Invalid JSON file format.');
+                    }
+                } catch (error) {
+                    alert('Error reading or parsing the file.');
+                    console.error(error);
+                }
+            };
+            reader.readAsText(file);
+            // Reset file input to allow importing the same file again
+            importFile.value = '';
+        });
+
+        // --- INITIALIZATION ---
+        const initializeApp = () => {
+            loadData();
+            renderProjects();
+            // Set default date for new logs to today
+            document.getElementById('log-date').valueAsDate = new Date();
+        };
+
+        initializeApp();
+    });
+    </script>
+</body>
+</html>
