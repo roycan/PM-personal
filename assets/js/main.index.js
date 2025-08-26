@@ -9,14 +9,15 @@
     const addProjectForm = document.getElementById('add-project-form');
     const newProjectNameInput = document.getElementById('new-project-name');
 
-    // Load data from localStorage (simple inline until storage module is introduced)
+    // Load data from localStorage (now using unified key)
+    const KEY_PROJECTS = 'pmlog:v1:projects';
     let projects = [];
     const loadData = () => {
-      const stored = localStorage.getItem('projectLog_projects');
-      projects = stored ? JSON.parse(stored) : [];
+      try { const stored = localStorage.getItem(KEY_PROJECTS); projects = stored ? JSON.parse(stored) : []; }
+      catch(e){ console.warn('Projects parse error', e); projects = []; }
     };
     const saveData = () => {
-      localStorage.setItem('projectLog_projects', JSON.stringify(projects));
+      localStorage.setItem(KEY_PROJECTS, JSON.stringify(projects));
     };
 
     const renderProjects = () => {
@@ -25,11 +26,12 @@
         projectList.innerHTML = '<p class="has-text-grey">No projects yet. Add one to get started!</p>';
       } else {
         projects.forEach(project => {
-          const projectDiv = document.createElement('div');
-          projectDiv.className = `panel-block project-item`;
-          projectDiv.dataset.id = project.id;
-          projectDiv.innerHTML = `\n            <span class="panel-icon"><i class="fas fa-folder"></i></span>\n            ${project.name}\n          `;
-          projectList.appendChild(projectDiv);
+          const a = document.createElement('a');
+          a.className = 'panel-block project-item';
+          a.dataset.id = project.id;
+          a.href = `project.html?id=${encodeURIComponent(project.id)}`;
+          a.innerHTML = `\n            <span class="panel-icon"><i class="fas fa-folder"></i></span>\n            ${project.name}\n          `;
+          projectList.appendChild(a);
         });
       }
     };

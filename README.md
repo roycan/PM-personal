@@ -3,7 +3,7 @@
 Hybrid multi-page refactor (in progress) for teaching high school students maintainable web development with minimal tooling. Deployable on GitHub Pages; no build step required.
 
 ## Status
-Phase 1 (asset extraction) + storage module WIP. Original monolithic version archived at `archives/index_20250826.html`.
+Phase 1 (asset extraction) complete. Multi-page expansion started (`project.html`). `storage.js` deprecated (kept one commit for history) — now using direct `localStorage` in page scripts plus validation helpers in `App.utils`. Original monolithic version archived at `archives/index_20250826.html`.
 
 ## Key Goals
 - Simple, readable JavaScript (no ES modules) using a single global `App` object and IIFE modules.
@@ -14,8 +14,9 @@ Phase 1 (asset extraction) + storage module WIP. Original monolithic version arc
 ## Directory Overview
 ```
 assets/css/        Base styles, custom properties, theming
-assets/js/         IIFE-based scripts (app.boot, utils, storage, main.*)
-archives/          Archived versions of earlier index.html
+assets/js/         IIFE-based scripts (app.boot, utils, main.index, main.project, deprecated storage)
+archives/          Archived versions (original snapshot)
+tests/             QUnit harness + test files
 inceptions/        User stories and inception docs
 .github/           PR & issue templates
 ```
@@ -45,19 +46,21 @@ Export bundle shape:
 ## Using AI Assistance
 See `AI_POLICY.md`, `AI_PROMPTS.md`, and PR template. Always include prompts + verification notes.
 
-## Testing (planned)
-QUnit via CDN (tests/ folder). Pure helpers (validation, analytics) will be covered by tests.
+## Testing
+Open `tests/index.html` to run QUnit tests for utilities + validation. Add new test files referencing helpers under `assets/js/` as they appear.
 
 ## License
 MIT — see `LICENSE`.
 
 ## Roadmap (abbrev)
 1. Separate assets (done)
-2. Storage module (in progress)
-3. Multi-page structure (`project.html`)
-4. Renderers & events
-5. Logs list + filters
-6. Calendar & analytics (lazy)
-7. Theming + dark mode
+2. Validation migration & deprecate storage abstraction (done)
+3. Multi-page structure (`project.html`) (in progress)
+4. Logs CRUD on project page (done basic add/delete)
+5. Project page improvements: edit logs, sorting, filtering (next)
+6. Calendar & analytics stubs (present) → implement later lessons
+7. Export/import re-wire without storage.js helper
+8. Theming + dark mode
+9. Accessibility sweep
 
 See detailed plan in `PLAN.md`.

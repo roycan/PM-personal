@@ -2,6 +2,8 @@
 (function(ns){
   ns.utils = ns.utils || {};
 
+  const DATA_VERSION = 1; // exposed for reference (export/import bundle version)
+
   function generateId() {
     return `id_${Date.now()}_${Math.random().toString(36).slice(2,9)}`;
   }
@@ -17,12 +19,57 @@
     return `${yyyy}-${mm}-${dd}`;
   }
 
-  function todayISO() {
-    return formatDateISO(new Date());
+  function todayISO() { return formatDateISO(new Date()); }
+
+  // --- Validation helpers (moved from deprecated storage layer) ---
+  function validateProject(p){
+    const errors = [];
+    if(!p || typeof p !== 'object') errors.push('Project not an object');
+    else {
+      if(!p.id) errors.push('Project missing id');
+      if(!p.name) errors.push('Project missing name');
+    }
+    return errors;
+  }
+  function dateRegex(){ return /^\d{4}-\d{2}-\d{2}$/; }
+  function validateLog(l, projectIds){
+    const errors = [];
+    if(!l || typeof l !== 'object') errors.push('Log not an object');
+    else {
+      if(!l.id) errors.push('Log missing id');
+      if(!l.projectId) errors.push('Log missing projectId');
+      if(l.projectId && projectIds && !projectIds.has(l.projectId)) errors.push('Log projectId not found');
+      if(!l.date || !dateRegex().test(l.date)) errors.push('Log date invalid');
+      if(!l.results) errors.push('Log missing results');
+    }
+    return errors;
+  }
+  function validateBundle(bundle){
+    const errors = [];
+    if(!bundle || typeof bundle !== 'object') return { ok:false, errors:['Bundle not an object'] };
+    if(bundle.version !== DATA_VERSION) errors.push('Unsupported version (expected '+DATA_VERSION+')');
+    if(!Array.isArray(bundle.projects)) errors.push('projects must be an array');
+    if(!Array.isArray(bundle.logs)) errors.push('logs must be an array');
+    if(errors.length) return { ok:false, errors };
+    const projectIds = new Set();
+    bundle.projects.forEach(p => {
+      validateProject(p).forEach(e=>errors.push(`Project ${p.id||'?'}: ${e}`));
+      if(p && p.id){ if(projectIds.has(p.id)) errors.push('Duplicate project id '+p.id); projectIds.add(p.id);}  
+    });
+    const logIds = new Set();
+    bundle.logs.forEach(l => {
+      validateLog(l, projectIds).forEach(e=>errors.push(`Log ${l.id||'?'}: ${e}`));
+      if(l && l.id){ if(logIds.has(l.id)) errors.push('Duplicate log id '+l.id); logIds.add(l.id);}  
+    });
+    return errors.length ? { ok:false, errors } : { ok:true, errors:[] };
   }
 
+  ns.utils.DATA_VERSION = DATA_VERSION;
   ns.utils.generateId = generateId;
   ns.utils.formatDateISO = formatDateISO;
   ns.utils.todayISO = todayISO;
+  ns.utils.validateProject = validateProject;
+  ns.utils.validateLog = validateLog;
+  ns.utils.validateBundle = validateBundle;
 
 })(window.App);

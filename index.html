@@ -33,6 +33,7 @@
                 <div class="level-right">
                     <div class="level-item">
                         <div class="buttons">
+                            <a href="tests/index.html" class="button is-warning is-light" title="Run QUnit tests">Tests</a>
                             <button id="import-btn" class="button is-info is-light">
                                 <span class="icon"><i class="fas fa-upload"></i></span>
                                 <span>Import Data</span>
@@ -46,6 +47,7 @@
                     </div>
                 </div>
             </div>
+            <p class="is-size-7 has-text-grey" id="deprecation-note">Storage abstraction deprecated: now using direct localStorage in page scripts.</p>
         </div>
     </section>
 
@@ -63,14 +65,14 @@
                                     <input id="new-project-name" class="input" type="text" placeholder="New project name..." required>
                                 </div>
                                 <div class="control">
-                                    <button class="button is-primary">
+                                    <button class="button is-primary" title="Add Project">
                                         <span class="icon"><i class="fas fa-plus"></i></span>
                                     </button>
                                 </div>
                             </div>
                         </form>
                         <div id="project-list">
-                            <!-- Projects will be dynamically inserted here -->
+                            <!-- Each project becomes an <a> link to project.html?id=...  -->
                         </div>
                     </div>
                 </div>
@@ -209,6 +211,7 @@
 
     <script src="assets/js/app.boot.js"></script>
     <script src="assets/js/utils.js"></script>
+    <script src="assets/js/storage.js"></script>
     <script src="assets/js/main.index.js"></script>
 </body>
 </html>

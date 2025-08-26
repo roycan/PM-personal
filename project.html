@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Project Detail - PM Logs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <link rel="stylesheet" href="assets/css/base.css">
+</head>
+<body>
+  <section class="section">
+    <div class="container">
+      <a href="index.html" class="button is-small">← All Projects</a>
+      <h1 class="title" id="projectTitle">Project</h1>
+      <p class="is-size-7 has-text-grey" id="projectMeta"></p>
+      <hr />
+      <div class="columns">
+        <div class="column is-5">
+          <h2 class="subtitle">Add Log</h2>
+          <form id="logForm">
+            <div class="field">
+              <label class="label">Date</label>
+              <div class="control">
+                <input class="input" type="date" name="date" required />
+              </div>
+            </div>
+            <div class="field">
+              <label class="label">Results</label>
+              <div class="control">
+                <textarea class="textarea" name="results" required></textarea>
+              </div>
+            </div>
+            <div class="field">
+              <label class="label">Observations</label>
+              <div class="control">
+                <textarea class="textarea" name="observations"></textarea>
+              </div>
+            </div>
+            <div class="field">
+              <label class="label">Reflections</label>
+              <div class="control">
+                <textarea class="textarea" name="reflections"></textarea>
+              </div>
+            </div>
+            <div class="field is-grouped">
+              <div class="control">
+                <button class="button is-link" type="submit">Add Log</button>
+              </div>
+              <div class="control">
+                <button class="button is-light" type="reset">Reset</button>
+              </div>
+            </div>
+            <p class="help is-danger" id="logFormError" style="display:none;"></p>
+          </form>
+        </div>
+        <div class="column is-7">
+          <h2 class="subtitle">Logs</h2>
+          <table class="table is-fullwidth is-striped is-hoverable" id="logsTable">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Results</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="logsTbody">
+              <!-- logs rows -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <hr />
+      <div class="columns">
+        <div class="column">
+          <h2 class="subtitle">Calendar (Stub)</h2>
+          <p class="has-text-grey is-italic">Calendar feature coming soon (will visualize log dates).</p>
+        </div>
+        <div class="column">
+          <h2 class="subtitle">Analytics (Stub)</h2>
+            <p class="has-text-grey is-italic">Analytics feature coming soon (summaries & charts).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <script src="assets/js/app.boot.js"></script>
+  <script src="assets/js/utils.js"></script>
+  <script src="assets/js/main.project.js"></script>
+</body>
+</html>
