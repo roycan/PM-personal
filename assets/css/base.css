@@ -1,0 +1,42 @@
+/* Base styles extracted from original index.html and teaching-friendly variables */
+:root {
+  --bg: #ffffff;
+  --text: #222222;
+  --muted: #7a7a7a;
+  --border: #dbdbdb;
+  --accent: #00d1b2; /* Bulma primary */
+}
+
+html, body {
+  height: 100%;
+  overflow-y: auto;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.main-container {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+.project-list-container {
+  height: calc(100vh - 200px);
+  overflow-y: auto;
+  border-right: 1px solid var(--border);
+}
+
+.log-entry-form, .analysis-view, .calendar-view {
+  display: none;
+}
+
+.is-active-view { display: block !important; }
+
+.project-item { cursor: pointer; transition: background-color 0.2s ease; }
+.project-item:hover, .project-item.is-active { background-color: #f0f0f0; }
+
+.fc-event { cursor: pointer; }
+
+.delete-project { display: none; margin-left: auto; }
+.project-item:hover .delete-project { display: inline-flex; }
+
+#calendar { max-height: 600px; }
