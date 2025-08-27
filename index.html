@@ -33,6 +33,9 @@
                 <div class="level-right">
                     <div class="level-item">
                         <div class="buttons">
+                            <button id="theme-toggle" class="button">
+                                <span class="icon"><i class="fas fa-moon"></i></span>
+                            </button>
                             <a href="tests/index.html" class="button is-warning is-light" title="Run QUnit tests">Tests</a>
                             <button id="import-btn" class="button is-info is-light">
                                 <span class="icon"><i class="fas fa-upload"></i></span>
@@ -208,10 +211,53 @@
         </div>
     </div>
 
+    <!-- Modal for Import Options -->
+    <div id="import-modal" class="modal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title">Import Data</p>
+                <button class="delete" aria-label="close"></button>
+            </header>
+            <section class="modal-card-body">
+                <div class="notification is-warning">
+                    <p>
+                        <strong>Warning:</strong> Importing data can overwrite your existing projects and logs. It is highly recommended to back up your current data first.
+                    </p>
+                </div>
+                <div class="field">
+                    <a id="backup-before-import-btn" class="button is-fullwidth is-link">
+                        <span class="icon"><i class="fas fa-download"></i></span>
+                        <span>Download Backup (.json)</span>
+                    </a>
+                </div>
+                <hr>
+                <p class="mb-2">Choose an import mode:</p>
+                <div class="control">
+                    <label class="radio">
+                        <input type="radio" name="import-mode" value="merge" checked>
+                        <strong>Merge:</strong> Add new data and update existing entries. (Safer)
+                    </label>
+                    <p class="is-size-7 ml-5 mb-3">Merges projects and logs. If an item in the import file has the same ID as an existing item, the imported item will replace it. If the names match but IDs don't, it will be treated as a new item.</p>
+                    <label class="radio">
+                        <input type="radio" name="import-mode" value="overwrite">
+                        <strong>Overwrite:</strong> Delete all current data and replace it with the imported data.
+                    </label>
+                     <p class="is-size-7 ml-5">This will completely erase your current projects and logs. Use with caution.</p>
+                </div>
+            </section>
+            <footer class="modal-card-foot">
+                <button id="confirm-import-btn" class="button is-success">Proceed with Import</button>
+                <button class="button modal-close-btn">Cancel</button>
+            </footer>
+        </div>
+    </div>
+
 
     <script src="assets/js/app.boot.js"></script>
     <script src="assets/js/utils.js"></script>
     <script src="assets/js/storage.js"></script>
+    <script src="assets/js/render.projects.js"></script>
     <script src="assets/js/main.index.js"></script>
 </body>
 </html>

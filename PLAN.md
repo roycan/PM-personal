@@ -75,25 +75,25 @@ Notes:
 - [ ] Ensure both pages include shared scripts in the correct order.
 
 ### Phase 4: State & Rendering (`04-state-and-rendering`)
-- [ ] Split UI code into `render.projects.js` and `render.projectPage.js` attaching to `App.render.*`.
-- [ ] Introduce a tiny pub/sub on `App.events = { on, off, emit }` implemented via closures in `app.boot.js` or a small IIFE.
-- [ ] Replace inline alerts with an inline status area on each page (simple DOM updates).
+- [x] Split UI code into `render.projects.js` and `render.projectPage.js` attaching to `App.render.*`.
+- [x] Introduce a tiny pub/sub on `App.events = { on, off, emit }` implemented via closures in `app.boot.js` or a small IIFE.
+- [x] Replace inline alerts with an inline status area on each page (simple DOM updates).
 
 ### Phase 5: Logs List & Filters (`05-add-log-list-and-filters`)
-- [ ] Add logs table UI (responsive) to `project.html` and implement text search and date range filters.
-- [ ] Add simple sort controls and filtered-count display.
+- [x] Add logs table UI (responsive) to `project.html` and implement text search and date range filters.
+- [x] Add simple sort controls and filtered-count display.
 
 ### Phase 6: Calendar & Analytics (`06-calendar-and-analytics`)
-- [ ] Add `vendor/fullcalendar-loader.js` that injects CDN script/link tags when calendar tab is opened.
-- [ ] Implement calendar wiring in `main.project.js` to lazily instantiate calendar and attach event handlers to show modals.
-- [ ] Move analytics calculations into `App.utils.analytics` as pure functions (testable).
+- [x] Add `vendor/fullcalendar-loader.js` that injects CDN script/link tags when calendar tab is opened.
+- [x] Implement calendar wiring in `main.project.js` to lazily instantiate calendar and attach event handlers to show modals.
+- [x] Move analytics calculations into `App.utils.analytics` as pure functions (testable).
 
 ### Phase 7: Theming & UX (`07-theming`)
-- [ ] Introduce CSS custom properties in `base.css` and add a dark mode toggle that persists to `App.storage`.
+- [x] Introduce CSS custom properties in `base.css` and add a dark mode toggle that persists to `App.storage`.
 
 ### Phase 8: Import/Export & Safety (`08-import-export-hardening`)
-- [ ] Validate import bundle structure before writing; provide backup download option.
-- [ ] Implement merge vs overwrite modes (merge policy: match by id, fallback match by name).
+- [x] Validate import bundle structure before writing; provide backup download option.
+- [x] Implement merge vs overwrite modes (merge policy: match by id, fallback match by name).
 
 ### Phase 9: Minimal Testing (`09-minimal-testing`)
 - [ ] Add `tests/storage.html` and `tests/utils.html` that load the shared scripts and run QUnit tests against `App.storage` and `App.utils`.

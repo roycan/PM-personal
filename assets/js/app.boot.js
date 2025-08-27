@@ -28,4 +28,86 @@ window.App = window.App || {};
   // simple logger for teaching; no external deps
   ns.log = function(...args) { console.log('[App]', ...args); };
 
+  // Theme manager
+  const theme = (function() {
+    const THEME_KEY = 'pmlog:theme';
+    let currentTheme = localStorage.getItem(THEME_KEY) || 'light';
+
+    function applyTheme() {
+      document.documentElement.classList.toggle('dark-mode', currentTheme === 'dark');
+      const icon = document.querySelector('#theme-toggle .fas');
+      if (icon) {
+        icon.className = currentTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+      }
+    }
+
+    function toggleTheme() {
+      currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+      localStorage.setItem(THEME_KEY, currentTheme);
+      applyTheme();
+    }
+
+    function init() {
+      applyTheme();
+      const toggleButton = document.getElementById('theme-toggle');
+      if (toggleButton) {
+        toggleButton.addEventListener('click', toggleTheme);
+      }
+    }
+    
+    return { init };
+  })();
+
+  ns.theme = theme;
+
+  // Simple Pub/Sub event bus
+  const events = (function () {
+    const topics = {};
+    return {
+      on: function (topic, listener) {
+        if (!topics[topic]) {
+          topics[topic] = [];
+        }
+        topics[topic].push(listener);
+      },
+      off: function (topic, listener) {
+        if (!topics[topic]) {
+          return;
+        }
+        const index = topics[topic].indexOf(listener);
+        if (index > -1) {
+          topics[topic].splice(index, 1);
+        }
+      },
+      emit: function (topic, data) {
+        if (!topics[topic]) {
+          return;
+        }
+        topics[topic].forEach(function (listener) {
+          listener(data);
+        });
+      }
+    };
+  })();
+
+  window.App.events = events;
+
+  /**
+   * Expected App structure:
+   * App = {
+   *   config: { ... },
+   *   utils: { ... },
+   *   storage: { ... },
+   *   events: { on, off, emit },
+   *   render: {
+   *     projects: { ... },
+   *     projectPage: { ... }
+   *   },
+   *   // main.index.js and main.project.js attach their own init functions
+   * }
+   */
+  document.addEventListener('DOMContentLoaded', () => {
+    ns.theme.init();
+  });
+
 })(window.App);

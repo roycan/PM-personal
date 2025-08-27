@@ -13,77 +13,77 @@
       <a href="index.html" class="button is-small">← All Projects</a>
       <h1 class="title" id="projectTitle">Project</h1>
       <p class="is-size-7 has-text-grey" id="projectMeta"></p>
-      <hr />
-      <div class="columns">
+      <div class="tabs is-boxed">
+        <ul>
+          <li class="is-active" data-tab="log-entry"><a><span class="icon is-small"><i class="fas fa-plus-circle"></i></span><span>Add Log</span></a></li>
+          <li data-tab="logs-list"><a><span class="icon is-small"><i class="fas fa-list"></i></span><span>View Logs</span></a></li>
+          <li data-tab="calendar-view"><a><span class="icon is-small"><i class="fas fa-calendar-alt"></i></span><span>Calendar</span></a></li>
+          <li data-tab="analytics-view"><a><span class="icon is-small"><i class="fas fa-chart-line"></i></span><span>Analytics</span></a></li>
+        </ul>
+      </div>
+
+      <!-- Log Entry Form -->
+      <div id="log-entry" class="tab-content is-active-view">
         <div class="column is-5">
-          <h2 class="subtitle">Add Log</h2>
-          <form id="logForm">
-            <div class="field">
-              <label class="label">Date</label>
-              <div class="control">
-                <input class="input" type="date" name="date" required />
-              </div>
-            </div>
-            <div class="field">
-              <label class="label">Results</label>
-              <div class="control">
-                <textarea class="textarea" name="results" required></textarea>
-              </div>
-            </div>
-            <div class="field">
-              <label class="label">Observations</label>
-              <div class="control">
-                <textarea class="textarea" name="observations"></textarea>
-              </div>
-            </div>
-            <div class="field">
-              <label class="label">Reflections</label>
-              <div class="control">
-                <textarea class="textarea" name="reflections"></textarea>
-              </div>
-            </div>
-            <div class="field is-grouped">
-              <div class="control">
-                <button class="button is-link" type="submit">Add Log</button>
-              </div>
-              <div class="control">
-                <button class="button is-light" type="reset">Reset</button>
-              </div>
-            </div>
+// ...existing code...
             <p class="help is-danger" id="logFormError" style="display:none;"></p>
           </form>
         </div>
+      </div>
+
+      <!-- Logs List -->
+      <div id="logs-list" class="tab-content">
         <div class="column is-7">
-          <h2 class="subtitle">Logs</h2>
-          <table class="table is-fullwidth is-striped is-hoverable" id="logsTable">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Results</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="logsTbody">
-              <!-- logs rows -->
+// ...existing code...
             </tbody>
           </table>
         </div>
       </div>
-      <hr />
-      <div class="columns">
-        <div class="column">
-          <h2 class="subtitle">Calendar (Stub)</h2>
-          <p class="has-text-grey is-italic">Calendar feature coming soon (will visualize log dates).</p>
-        </div>
-        <div class="column">
-          <h2 class="subtitle">Analytics (Stub)</h2>
-            <p class="has-text-grey is-italic">Analytics feature coming soon (summaries & charts).</p>
-        </div>
+
+      <!-- Calendar View -->
+      <div id="calendar-view" class="tab-content">
+          <div class="box">
+              <div id="calendar"></div>
+          </div>
+      </div>
+
+      <!-- Analytics View -->
+      <div id="analytics-view" class="tab-content">
+          <div class="box">
+              <h3 class="title is-5">Project Analytics</h3>
+              <nav class="level is-mobile">
+                  <div class="level-item has-text-centered">
+                      <div>
+                          <p class="heading">Total Logs</p>
+                          <p id="total-logs" class="title">0</p>
+                      </div>
+                  </div>
+                  <div class="level-item has-text-centered">
+                      <div>
+                          <p class="heading">First Log</p>
+                          <p id="first-log-date" class="title">N/A</p>
+                      </div>
+                  </div>
+                  <div class="level-item has-text-centered">
+                      <div>
+                          <p class="heading">Last Log</p>
+                          <p id="last-log-date" class="title">N/A</p>
+                      </div>
+                  </div>
+              </nav>
+              <hr>
+              <h4 class="title is-6">Log Activity (Last 30 Days)</h4>
+              <progress id="activity-bar" class="progress is-success" value="0" max="30"></progress>
+              <p id="activity-text">0 / 30 days with activity.</p>
+          </div>
       </div>
     </div>
   </section>
   <script src="assets/js/app.boot.js"></script>
   <script src="assets/js/utils.js"></script>
+  <script src="assets/js/storage.js"></script>
+  <script src="assets/js/render.projectPage.js"></script>
+  <script src="assets/js/vendor/fullcalendar-loader.js"></script>
   <script src="assets/js/main.project.js"></script>
 </body>
 </html>
