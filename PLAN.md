@@ -96,51 +96,68 @@ Notes:
 - [x] Implement merge vs overwrite modes (merge policy: match by id, fallback match by name).
 
 ### Phase 9: Minimal Testing (`09-minimal-testing`)
-- [ ] Add `tests/storage.html` and `tests/utils.html` that load the shared scripts and run QUnit tests against `App.storage` and `App.utils`.
-- [ ] Keep tests focused on pure functions and storage validation.
+
+- [x] Add `tests/storage_test.html` and `tests/utils_test.html` that load the shared scripts and run QUnit tests against `App.storage` and `App.utils`.
+- [x] Keep tests focused on pure functions and storage validation.
 
 ### Phase 10: Accessibility Pass (Deferred) (`10-accessibility-pass`)
 - [ ] Add keyboard tab navigation and modal focus trap later as a dedicated lesson.
 
 ### Phase 11: Docs & Quality (`11-quality-and-docs`)
+
 - [ ] Add README, architecture notes (how `App` is composed), lesson plan per branch, CONTRIBUTING, LICENSE.
+- [x] Add architecture notes (`ARCHITECTURE.md`) and contributing guide (`CONTRIBUTING.md`).
+- [x] Add reset-to-sample data button & logic.
+- [x] Cross-link docs in `README.md`.
+- [ ] Markdown lint pass (headings, fenced code languages) (pending).
 
 ## Script Ordering & Best Practices (Important when NOT using modules)
-- Load order matters. Always include scripts in this sequence:
-	1. `app.boot.js` (creates `window.App` and `App.events`)
-	2. `utils.js` (pure helpers)
-	3. `storage.js` (depends on utils)
-	4. `render.*.js` (depends on storage & utils)
-	5. `main.*.js` (wires DOM events; last)
-- Document order clearly in `README.md` and top of each script with a short header comment.
-- Keep each `App.*` surface small and well-documented to make later refactor to modules trivial.
+
+Load order matters. Always include scripts in this sequence:
+
+1. `app.boot.js` (creates `window.App` and `App.events`)
+2. `utils.js` (pure helpers)
+3. `storage.js` (depends on utils)
+4. `render.*.js` (depends on storage & utils)
+5. `main.*.js` (wires DOM events; last)
+
+Document order clearly in `README.md` and top of each script with a short header comment.
+Keep each `App.*` surface small and well-documented to make later refactor to modules trivial.
 
 ## Migration Path to ES modules (future)
-- If you later want to teach ES modules, the migration is straightforward:
-	- Replace `App.*` assignments with `export const` and import into consumers.
-	- Update HTML to use `<script type="module">` for the entry points.
-	- Keep tests and utilities as pure functions to minimize migration friction.
+
+If you later want to teach ES modules, the migration is straightforward:
+
+- Replace `App.*` assignments with `export const` and import into consumers.
+- Update HTML to use `<script type="module">` for the entry points.
+- Keep tests and utilities as pure functions to minimize migration friction.
 
 ## Data & Privacy (unchanged core proposals)
+
 - Keep namespaced keys and a `DATA_VERSION` in the export bundle.
 - Provide backup before overwrite and a sample-data reset.
 
 ## Testing & Classroom Exercises
-- Lesson exercises will show students how to:
-	- Extract inline script into `utils.js` and confirm functionality.
-	- Replace global functions with `App.*` members (IIFE attaching to `App`).
-	- Implement `importBundle()` validation and test with `tests/storage.html`.
+
+Lesson exercises will show students how to:
+
+- Extract inline script into `utils.js` and confirm functionality.
+- Replace global functions with `App.*` members (IIFE attaching to `App`).
+- Implement `importBundle()` validation and test with `tests/storage.html`.
 
 ## License Recommendation
+
 - Recommend MIT for educational reuse.
 
 ## Next Actions
+
 - [ ] Confirm this NO-ES-modules plan. Once confirmed I'll start Phase 1: create `assets/` folders, extract inline styles, and add `app.boot.js` and `utils.js` skeletons (no behavioral changes yet).
 
 ---
 (End of revised plan)
 
 ## Next Action After Confirmation
+
 Start Phase 1: create baseline branch, extract assets, add README, commit.
 
 ---

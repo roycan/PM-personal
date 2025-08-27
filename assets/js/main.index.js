@@ -7,6 +7,7 @@
     const newProjectNameInput = document.getElementById('new-project-name');
     const importBtn = document.getElementById('import-btn');
     const exportBtn = document.getElementById('export-btn');
+  const resetSampleBtn = document.getElementById('reset-sample-btn');
     const importFile = document.getElementById('import-file');
     const importModal = document.getElementById('import-modal');
     const backupBtn = document.getElementById('backup-before-import-btn');
@@ -68,6 +69,24 @@
 
     importBtn.addEventListener('click', () => {
         importModal.classList.add('is-active');
+    });
+
+    resetSampleBtn.addEventListener('click', () => {
+        if(!confirm('This will overwrite your current data with sample data. Continue?')) return;
+        fetch('assets/data/sample-data.json')
+          .then(r=>r.json())
+          .then(sample => {
+            // sample is already a full export bundle; pass through
+            const result = ns.storage.importBundle(JSON.stringify(sample), 'overwrite');
+            if(result.success){
+              loadData();
+              renderProjects();
+              alert('Sample data loaded.');
+            } else {
+              alert('Failed to load sample data: '+result.error);
+            }
+          })
+          .catch(err=> alert('Error fetching sample data: '+err.message));
     });
 
     backupBtn.addEventListener('click', () => {

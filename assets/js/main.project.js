@@ -173,33 +173,20 @@
   }
 
   function updateAnalytics(logs) {
-    const totalLogs = document.getElementById('total-logs');
-    const firstLogDate = document.getElementById('first-log-date');
-    const lastLogDate = document.getElementById('last-log-date');
-    const activityBar = document.getElementById('activity-bar');
-    const activityText = document.getElementById('activity-text');
+  const totalLogsEl = document.getElementById('total-logs');
+  const firstLogDate = document.getElementById('first-log-date');
+  const lastLogDate = document.getElementById('last-log-date');
+  const activityBar = document.getElementById('activity-bar');
+  const activityText = document.getElementById('activity-text');
 
-    totalLogs.textContent = logs.length;
+  const summary = ns.utils.analytics.summarizeLogs(logs);
+  totalLogsEl.textContent = summary.total;
+  firstLogDate.textContent = summary.firstDate || 'N/A';
+  lastLogDate.textContent = summary.lastDate || 'N/A';
 
-    if (logs.length > 0) {
-        const sortedLogs = [...logs].sort((a, b) => a.date.localeCompare(b.date));
-        firstLogDate.textContent = sortedLogs[0].date;
-        lastLogDate.textContent = sortedLogs[logs.length - 1].date;
-
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        const recentLogs = logs.filter(log => new Date(log.date) > thirtyDaysAgo);
-        const activeDays = new Set(recentLogs.map(log => log.date)).size;
-        
-        activityBar.value = activeDays;
-        activityText.textContent = `${activeDays} / 30 days with activity.`;
-
-    } else {
-        firstLogDate.textContent = 'N/A';
-        lastLogDate.textContent = 'N/A';
-        activityBar.value = 0;
-        activityText.textContent = '0 / 30 days with activity.';
-    }
+  const activity = ns.utils.analytics.activityLastNDays(logs, 30);
+  activityBar.value = activity.activeDays;
+  activityText.textContent = `${activity.activeDays} / ${activity.window} days with activity.`;
   }
 
   function init(){

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>QUnit Tests: App.storage</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.20.1.css" />
+  <style>body{font-family:system-ui,Arial,sans-serif;padding:1rem;}</style>
+</head>
+<body>
+  <h1>Storage Tests</h1>
+  <div id="qunit"></div>
+  <div id="qunit-fixture"></div>
+
+  <script src="https://code.jquery.com/qunit/qunit-2.20.1.js"></script>
+  <script src="../assets/js/app.boot.js"></script>
+  <script src="../assets/js/utils.js"></script>
+  <script src="../assets/js/storage.js"></script>
+  <script>
+    QUnit.module('App.storage', hooks => {
+      hooks.beforeEach(() => {
+        localStorage.clear();
+      });
+
+      QUnit.test('exportBundle returns JSON string with expected shape', assert => {
+        localStorage.setItem('pmlog:v1:projects', JSON.stringify([{ id:'p1', name:'Proj 1'}]));
+        localStorage.setItem('pmlog:v1:logs', JSON.stringify([{ id:'l1', projectId:'p1', date:'2025-08-27', results:'Did stuff'}]));
+        const json = App.storage.exportBundle();
+        const parsed = JSON.parse(json);
+        assert.ok(parsed.version, 'has version');
+        assert.ok(Array.isArray(parsed.data.projects), 'projects array');
+        assert.ok(Array.isArray(parsed.data.logs), 'logs array');
+      });
+
+      QUnit.test('importBundle overwrite mode replaces data', assert => {
+        localStorage.setItem('pmlog:v1:projects', JSON.stringify([{ id:'old', name:'Old'}]));
+        const bundle = JSON.stringify({ version:'v1', data:{ projects:[{id:'new', name:'New'}], logs:[] }});
+        const res = App.storage.importBundle(bundle, 'overwrite');
+        assert.true(res.success, 'import success');
+        const projects = JSON.parse(localStorage.getItem('pmlog:v1:projects'));
+        assert.deepEqual(projects.map(p=>p.id), ['new']);
+      });
+
+      QUnit.test('importBundle merge mode merges by id', assert => {
+        localStorage.setItem('pmlog:v1:projects', JSON.stringify([{ id:'p1', name:'Orig'}]));
+        const bundle = JSON.stringify({ version:'v1', data:{ projects:[{id:'p1', name:'Updated'},{id:'p2', name:'Second'}], logs:[] }});
+        const res = App.storage.importBundle(bundle, 'merge');
+        assert.true(res.success, 'merge success');
+        const projects = JSON.parse(localStorage.getItem('pmlog:v1:projects'));
+        const namesById = Object.fromEntries(projects.map(p=>[p.id,p.name]));
+        assert.strictEqual(namesById.p1, 'Updated', 'updated existing');
+        assert.ok(namesById.p2, 'added new');
+      });
+
+      QUnit.test('importBundle invalid bundle rejected', assert => {
+        const res = App.storage.importBundle('{"bad": true}', 'merge');
+        assert.false(res.success, 'failed as expected');
+      });
+    });
+  </script>
+</body>
+</html>

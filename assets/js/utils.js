@@ -32,6 +32,12 @@
     return errors;
   }
   function dateRegex(){ return /^\d{4}-\d{2}-\d{2}$/; }
+  function isRealISODate(str){
+    if(!dateRegex().test(str)) return false;
+    const [y,m,d] = str.split('-').map(Number);
+    const dt = new Date(str + 'T00:00:00Z');
+    return dt.getUTCFullYear() === y && (dt.getUTCMonth()+1) === m && dt.getUTCDate() === d;
+  }
   function validateLog(l, projectIds){
     const errors = [];
     if(!l || typeof l !== 'object') errors.push('Log not an object');
@@ -39,7 +45,7 @@
       if(!l.id) errors.push('Log missing id');
       if(!l.projectId) errors.push('Log missing projectId');
       if(l.projectId && projectIds && !projectIds.has(l.projectId)) errors.push('Log projectId not found');
-      if(!l.date || !dateRegex().test(l.date)) errors.push('Log date invalid');
+      if(!l.date || !isRealISODate(l.date)) errors.push('Log date invalid');
       if(!l.results) errors.push('Log missing results');
     }
     return errors;
@@ -71,5 +77,36 @@
   ns.utils.validateProject = validateProject;
   ns.utils.validateLog = validateLog;
   ns.utils.validateBundle = validateBundle;
+
+  // --- Analytics (extracted from inline project page logic) ---
+  // Summarize an array of logs (already filtered to one project where needed)
+  function summarizeLogs(logs){
+    if(!Array.isArray(logs) || logs.length===0){
+      return { total:0, firstDate:null, lastDate:null };
+    }
+    // dates are stored as YYYY-MM-DD so lexical sort works
+    let first = logs[0].date, last = logs[0].date;
+    logs.forEach(l=>{
+      if(l.date < first) first = l.date;
+      if(l.date > last) last = l.date;
+    });
+    return { total: logs.length, firstDate:first, lastDate:last };
+  }
+
+  function activityLastNDays(logs, days){
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate()-days);
+    const active = new Set();
+    logs.forEach(l=>{
+      const d = new Date(l.date);
+      if(d>cutoff) active.add(l.date);
+    });
+    return { activeDays: active.size, window: days };
+  }
+
+  ns.utils.analytics = {
+    summarizeLogs,
+    activityLastNDays
+  };
 
 })(window.App);

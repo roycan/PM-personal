@@ -5,6 +5,7 @@
   <title>Project Detail - PM Logs</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="assets/css/base.css">
 </head>
 <body>
@@ -24,8 +25,41 @@
 
       <!-- Log Entry Form -->
       <div id="log-entry" class="tab-content is-active-view">
-        <div class="column is-5">
-// ...existing code...
+        <div class="box column is-6 p-4">
+          <h3 class="title is-5">Add Log Entry</h3>
+          <form id="logForm">
+            <div class="field">
+              <label class="label" for="date">Date</label>
+              <div class="control">
+                <input class="input" type="date" name="date" required>
+              </div>
+            </div>
+            <div class="field">
+              <label class="label" for="results">Key Results</label>
+              <div class="control">
+                <textarea class="textarea" name="results" placeholder="What did you accomplish?" required></textarea>
+              </div>
+            </div>
+            <div class="field">
+              <label class="label" for="observations">Observations</label>
+              <div class="control">
+                <textarea class="textarea" name="observations" placeholder="Any interesting findings or challenges?"></textarea>
+              </div>
+            </div>
+            <div class="field">
+              <label class="label" for="reflections">Reflections</label>
+              <div class="control">
+                <textarea class="textarea" name="reflections" placeholder="How did it go? What could be improved?"></textarea>
+              </div>
+            </div>
+            <div class="field is-grouped">
+              <div class="control">
+                <button type="submit" class="button is-link">Save Log</button>
+              </div>
+              <div class="control">
+                <button type="reset" class="button is-light">Clear</button>
+              </div>
+            </div>
             <p class="help is-danger" id="logFormError" style="display:none;"></p>
           </form>
         </div>
@@ -33,10 +67,40 @@
 
       <!-- Logs List -->
       <div id="logs-list" class="tab-content">
-        <div class="column is-7">
-// ...existing code...
-            </tbody>
-          </table>
+        <div class="box column is-10 p-4">
+          <h3 class="title is-5">Logs</h3>
+          <div class="columns is-multiline is-variable is-2 mb-3">
+            <div class="column is-3">
+              <label class="label is-size-7" for="logSearch">Search</label>
+              <input id="logSearch" class="input" type="text" placeholder="Search text...">
+            </div>
+            <div class="column is-2">
+              <label class="label is-size-7" for="startDate">Start Date</label>
+              <input id="startDate" class="input" type="date">
+            </div>
+            <div class="column is-2">
+              <label class="label is-size-7" for="endDate">End Date</label>
+              <input id="endDate" class="input" type="date">
+            </div>
+            <div class="column is-2 is-flex is-align-items-flex-end">
+              <button id="clearFilters" class="button is-light is-small" type="button">Clear Filters</button>
+            </div>
+            <div class="column is-3 is-flex is-align-items-flex-end">
+              <p id="logCount" class="is-size-7 has-text-grey">0 log(s) found.</p>
+            </div>
+          </div>
+          <div class="table-container">
+            <table class="table is-fullwidth is-hoverable is-striped is-narrow">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Results (truncated)</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="logsTbody"></tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -85,5 +149,23 @@
   <script src="assets/js/render.projectPage.js"></script>
   <script src="assets/js/vendor/fullcalendar-loader.js"></script>
   <script src="assets/js/main.project.js"></script>
+  <script>
+    // Simple tab handler for project.html (mirrors index variant)
+    document.addEventListener('DOMContentLoaded', function(){
+      const tabs = document.querySelectorAll('.tabs li');
+      const contents = document.querySelectorAll('.tab-content');
+      tabs.forEach(tab=>{
+        tab.addEventListener('click', ()=>{
+          tabs.forEach(t=>t.classList.remove('is-active'));
+          tab.classList.add('is-active');
+          const target = tab.dataset.tab;
+          contents.forEach(c=>{
+            if(c.id === target) c.classList.add('is-active-view');
+            else c.classList.remove('is-active-view');
+          });
+        });
+      });
+    });
+  </script>
 </body>
 </html>

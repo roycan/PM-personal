@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "exportedAt": "2025-08-27T00:00:00.000Z",
+  "data": {
+    "projects": [
+      { "id": "p-demo-1", "name": "Science Fair", "createdAt": "2025-08-01" },
+      { "id": "p-demo-2", "name": "Robotics Club", "createdAt": "2025-08-05" }
+    ],
+    "logs": [
+      { "id": "l-1", "projectId": "p-demo-1", "date": "2025-08-10", "results": "Ran initial hypothesis trials", "observations": "Data slightly noisy", "reflections": "Need more controlled environment", "createdAt": "2025-08-10T09:00:00Z" },
+      { "id": "l-2", "projectId": "p-demo-1", "date": "2025-08-15", "results": "Compiled measurement spreadsheet", "observations": "Outliers present", "reflections": "Will re-run two tests", "createdAt": "2025-08-15T14:00:00Z" },
+      { "id": "l-3", "projectId": "p-demo-2", "date": "2025-08-12", "results": "Built base chassis", "observations": "Motor alignment off by 2mm", "reflections": "Adjust mounts tomorrow", "createdAt": "2025-08-12T11:30:00Z" },
+      { "id": "l-4", "projectId": "p-demo-2", "date": "2025-08-18", "results": "Implemented line-follow algorithm", "observations": "Occasional drift on curves", "reflections": "Tune PID values", "createdAt": "2025-08-18T16:45:00Z" }
+    ]
+  }
+}

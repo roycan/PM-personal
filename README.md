@@ -1,24 +1,25 @@
 # Personal Project Log (Teaching Edition)
 
-Hybrid multi-page refactor (in progress) for teaching high school students maintainable web development with minimal tooling. Deployable on GitHub Pages; no build step required.
+Hybrid multi-page refactor for teaching high school students maintainable web development with minimal tooling. Deployable on GitHub Pages; no build step required.
 
 ## Status
-Phase 1 (asset extraction) complete. Multi-page expansion started (`project.html`). `storage.js` deprecated (kept one commit for history) — now using direct `localStorage` in page scripts plus validation helpers in `App.utils`. Original monolithic version archived at `archives/index_20250826.html`.
+Refactor progressed through Phase 9 (minimal testing). Phase 10 (accessibility) deferred; Phase 11 (docs & quality) in progress. See `PLAN.md` for detailed checklist and `ARCHITECTURE.md` for structure. Contribution guidelines: `CONTRIBUTING.md`.
 
 ## Key Goals
 - Simple, readable JavaScript (no ES modules) using a single global `App` object and IIFE modules.
 - Progressive lessons via branches (see `PLAN.md`).
 - Clear separation: storage / rendering / wiring.
 - Data safety: versioned export/import JSON + validation.
+- Lightweight theming (CSS custom properties + dark mode toggle).
 
 ## Directory Overview
 ```
 assets/css/        Base styles, custom properties, theming
-assets/js/         IIFE-based scripts (app.boot, utils, main.index, main.project, deprecated storage)
+assets/js/         IIFE-based scripts (boot, utils, storage, render, main pages, vendor loaders)
+assets/data/       (sample data placeholder)
 archives/          Archived versions (original snapshot)
-tests/             QUnit harness + test files
+tests/             QUnit pages (storage & utils)
 inceptions/        User stories and inception docs
-.github/           PR & issue templates
 ```
 
 ## Running Locally
@@ -33,34 +34,35 @@ LocalStorage keys (v1):
 - `pmlog:v1:projects`
 - `pmlog:v1:logs`
 
-Export bundle shape:
+Export bundle shape (`App.storage.exportBundle()` returns JSON string):
 ```json
 {
-  "version": 1,
-  "exportedAt": "2025-08-26T00:00:00Z",
-  "projects": [ ... ],
-  "logs": [ ... ]
+  "version": "v1",
+  "exportedAt": "2025-08-26T00:00:00.000Z",
+  "data": {
+    "projects": [ ... ],
+    "logs": [ ... ]
+  }
 }
 ```
 
+Import modes: `merge` (default) or `overwrite` via modal in `index.html`.
+
 ## Using AI Assistance
-See `AI_POLICY.md`, `AI_PROMPTS.md`, and PR template. Always include prompts + verification notes.
+See: `AI_POLICY.md`, `AI_PROMPTS.md`, `AI_TASKS.md`, `PRIVACY_AND_AI.md`, and the PR template (`.github/pull_request_template.md`). Always include prompts + verification notes in PRs when AI assisted.
 
 ## Testing
-Open `tests/index.html` to run QUnit tests for utilities + validation. Add new test files referencing helpers under `assets/js/` as they appear.
+Open `tests/index.html` to run QUnit suites. Add new test pages colocated in `tests/` named `feature_test.html` for clarity.
+
+## Theming
+Light/dark mode toggle persists using `localStorage` (`pmlog:theme`). Override variables in `assets/css/base.css` for classroom exercises.
+
+## Roadmap (Condensed Progress)
+- [x] Phases 1–9 implemented
+- [ ] Phase 10 (Deferred) Accessibility enhancements
+- [ ] Phase 11 Documentation polishing & contribution guidance (current)
+
+See full roadmap in `PLAN.md`.
 
 ## License
 MIT — see `LICENSE`.
-
-## Roadmap (abbrev)
-1. Separate assets (done)
-2. Validation migration & deprecate storage abstraction (done)
-3. Multi-page structure (`project.html`) (in progress)
-4. Logs CRUD on project page (done basic add/delete)
-5. Project page improvements: edit logs, sorting, filtering (next)
-6. Calendar & analytics stubs (present) → implement later lessons
-7. Export/import re-wire without storage.js helper
-8. Theming + dark mode
-9. Accessibility sweep
-
-See detailed plan in `PLAN.md`.

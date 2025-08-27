@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>QUnit Tests: App.utils</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.20.1.css" />
+  <style>body{font-family:system-ui,Arial,sans-serif;padding:1rem;}</style>
+</head>
+<body>
+  <h1>Utils Tests</h1>
+  <div id="qunit"></div>
+  <div id="qunit-fixture"></div>
+
+  <script src="https://code.jquery.com/qunit/qunit-2.20.1.js"></script>
+  <script src="../assets/js/app.boot.js"></script>
+  <script src="../assets/js/utils.js"></script>
+  <script>
+    QUnit.module('App.utils');
+
+    QUnit.test('generateId returns non-empty string', assert => {
+      const id = App.utils.generateId();
+      assert.equal(typeof id, 'string');
+      assert.ok(id.length > 0);
+    });
+
+    QUnit.test('todayISO returns YYYY-MM-DD', assert => {
+      const d = App.utils.todayISO();
+      assert.ok(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(d), 'matches pattern');
+    });
+
+    if (App.utils.validateLog) {
+      QUnit.test('validateLog basic validation', assert => {
+        const projectIds = new Set(['p1']);
+        const log = { id:'l1', projectId:'p1', date:'2025-08-27', results:'did', observations:'', reflections:'', createdAt:new Date().toISOString() };
+        const errs = App.utils.validateLog(log, projectIds);
+        assert.deepEqual(errs, [], 'no errors expected');
+      });
+    }
+  </script>
+</body>
+</html>
