@@ -1,6 +1,8 @@
 // project.js - Phase 2 initial (add log only) controller
 import { generateId, todayISO } from './utils.mod.js';
 import { getProjects, getLogsByProject, addLog, updateLog, deleteLog } from './data.js';
+import { summarizeLogs, activityLastNDays } from './analytics.mod.js';
+import { loadCalendar } from './calendarLoader.js';
 
 function qs(sel){ return document.querySelector(sel); }
 function qsa(sel){ return Array.from(document.querySelectorAll(sel)); }
@@ -13,6 +15,7 @@ function getProjectId(){
 let currentProjectId = null;
 const filterState = { q: '', start: '', end: '', sortDir: 'desc' }; // sortDir: 'asc' | 'desc'
 let searchDebounceTimer = null;
+let calendarInstance = null;
 
 function getFilteredLogs(){
   let logs = getLogsByProject(currentProjectId).slice();
@@ -62,6 +65,8 @@ function renderLogs(){
     }
   }
   updateSortHeader();
+  refreshAnalytics();
+  refreshCalendarEvents();
 }
 
 function truncate(s,max){ return s.length>max ? s.slice(0,max-3)+'…' : s; }
@@ -201,14 +206,94 @@ function toggleExpansion(logId){
 function setupTabs(){
   const tabs = qsa('.tabs li');
   const contents = qsa('.tab-content');
+  function activateTab(target){
+    tabs.forEach(t=>t.classList.remove('is-active'));
+    const activeTab = tabs.find(t=> t.dataset.tab === target);
+    if(activeTab) activeTab.classList.add('is-active');
+    contents.forEach(c=> c.classList.toggle('is-active-view', c.id===target));
+    if(target === 'calendar-view') ensureCalendar();
+    if(target === 'analytics-view') refreshAnalytics();
+  }
   tabs.forEach(tab=>{
     tab.addEventListener('click', ()=>{
-      tabs.forEach(t=>t.classList.remove('is-active'));
-      tab.classList.add('is-active');
-      const target = tab.dataset.tab;
-      contents.forEach(c=> c.classList.toggle('is-active-view', c.id===target));
+      activateTab(tab.dataset.tab);
     });
   });
+  // expose for other handlers
+  window._activateProjectTab = activateTab;
+}
+
+// -------- Analytics (Phase 5) --------
+function refreshAnalytics(){
+  const logs = getLogsByProject(currentProjectId);
+  const stats = summarizeLogs(logs);
+  const activity = activityLastNDays(logs, 30);
+  const totalEl = qs('#total-logs');
+  const firstEl = qs('#first-log-date');
+  const lastEl = qs('#last-log-date');
+  const bar = qs('#activity-bar');
+  const text = qs('#activity-text');
+  if(totalEl) totalEl.textContent = stats.total;
+  if(firstEl) firstEl.textContent = stats.firstDate || 'N/A';
+  if(lastEl) lastEl.textContent = stats.lastDate || 'N/A';
+  if(bar){ bar.value = activity.activeDays; }
+  if(text){ text.textContent = `${activity.activeDays} / 30 days with activity.`; }
+}
+
+// -------- Calendar (Phase 5) --------
+function ensureCalendar(){
+  if(calendarInstance) return; // already initialized
+  loadCalendar().then(()=>{
+    initCalendar();
+  }).catch(err=>{
+    console.error('[calendar] load failed', err);
+  });
+}
+
+function initCalendar(){
+  const el = qs('#calendar');
+  if(!el) return;
+  // eslint-disable-next-line no-undef
+  calendarInstance = new FullCalendar.Calendar(el, {
+    initialView: 'dayGridMonth',
+    height: 'auto',
+    events: buildCalendarEvents(),
+    eventClick(info){
+      const id = info.event.extendedProps.logId;
+      if(id){
+        // Switch to logs list tab first so the row is visible
+        if(window._activateProjectTab) window._activateProjectTab('logs-list');
+        // Allow layout paint
+        setTimeout(()=>{
+          toggleExpansion(id);
+          const row = qs(`tr[data-id='${CSS.escape(id)}']`);
+          if(row){
+            row.scrollIntoView({ behavior:'smooth', block:'center' });
+            row.classList.add('has-background-warning-light');
+            setTimeout(()=> row.classList.remove('has-background-warning-light'), 1500);
+          }
+        }, 50);
+      }
+    }
+  });
+  calendarInstance.render();
+}
+
+function buildCalendarEvents(){
+  const logs = getLogsByProject(currentProjectId);
+  return logs.map(l => ({
+    title: truncate((l.results||'').replace(/\s+/g,' '), 20),
+    start: l.date,
+    allDay: true,
+    extendedProps: { logId: l.id }
+  }));
+}
+
+function refreshCalendarEvents(){
+  if(!calendarInstance) return; // not yet initialized
+  const events = buildCalendarEvents();
+  calendarInstance.removeAllEvents();
+  events.forEach(ev => calendarInstance.addEvent(ev));
 }
 
 document.addEventListener('DOMContentLoaded', ()=>{
@@ -220,4 +305,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
   setupTableActions();
   setupFilters();
   setupTabs();
+  // Pre-compute analytics so switching tab feels instant
+  refreshAnalytics();
 });

@@ -50,12 +50,13 @@ Legend: [ ] not started, [~] in progress, [x] done, [>] deferred/optional
 - [x] 4.7 Manual round‑trip test. (Automated script: `tests/roundtrip.html` + `window.runExportImportSmoke()`)
 
 ### Phase 5 – Calendar + Basic Analytics
-- [ ] 5.1 Calendar lazy loader (dynamic script or dynamic import) triggered on tab activation.
-- [ ] 5.2 Calendar event build (one event per log, truncated title).
-- [ ] 5.3 Event click scroll/highlight matching log row.
-- [ ] 5.4 Basic analytics helper `computeBasicStats(logs)`.
-- [ ] 5.5 Render analytics (total, first, last, activeDaysLast30).
-- [ ] 5.6 Recompute analytics + refresh calendar after CRUD.
+- [x] 5.1 Calendar lazy loader (dynamic script or dynamic import) triggered on tab activation.
+- [x] 5.2 Calendar event build (one event per log, truncated title).
+- [x] 5.3 Event click scroll/highlight matching log row.
+- [x] 5.4 Basic analytics helper `computeBasicStats(logs)` (implemented via `summarizeLogs` + `activityLastNDays`).
+- [x] 5.5 Render analytics (total, first, last, activeDaysLast30).
+- [x] 5.6 Recompute analytics + refresh calendar after CRUD.
+	- Note: Replaced legacy vendor loader with ES module `calendarLoader.js` (fixes missing calendar after removing legacy globals).
 
 ### Phase 6 – Optional Enhancements
 - [x] 6.1 Dark mode toggle + persist (migrated to `theme.js`).
@@ -141,8 +142,6 @@ Migration Logic Draft (Task 0.5):
 - Export/import round trip preserves data.
 - Calendar/list stay in sync after operations.
 
-## Next Immediate Actions (Executing Phase 0)
-Refer to Phase 0 checklist items (0.1–0.7). Update their status as we complete them.
 
 ---
 End of Plan Checklist
