@@ -93,7 +93,7 @@
             <table class="table is-fullwidth is-hoverable is-striped is-narrow">
               <thead>
                 <tr>
-                  <th>Date</th>
+                  <th id="dateSortToggle" style="cursor:pointer; user-select:none;" title="Toggle sort order">Date</th>
                   <th>Results (truncated)</th>
                   <th></th>
                 </tr>
@@ -115,6 +115,7 @@
       <div id="analytics-view" class="tab-content">
           <div class="box">
               <h3 class="title is-5">Project Analytics</h3>
+              <p class="is-size-7 has-text-grey" id="analyticsPlaceholder">(Basic analytics will appear in Phase 5: total logs, first date, last date, active days last 30.)</p>
               <nav class="level is-mobile">
                   <div class="level-item has-text-centered">
                       <div>
@@ -143,12 +144,13 @@
       </div>
     </div>
   </section>
-  <script src="assets/js/app.boot.js"></script>
-  <script src="assets/js/utils.js"></script>
-  <script src="assets/js/storage.js"></script>
-  <script src="assets/js/render.projectPage.js"></script>
+  <!-- Legacy scripts removed (storage/main/render). Calendar vendor loader retained for upcoming Phase 5 calendar integration. -->
   <script src="assets/js/vendor/fullcalendar-loader.js"></script>
-  <script src="assets/js/main.project.js"></script>
+  <!-- ES module scripts (Phase 2) -->
+  <script type="module" src="assets/js/theme.js"></script>
+  <script type="module" src="assets/js/utils.mod.js"></script>
+  <script type="module" src="assets/js/data.js"></script>
+  <script type="module" src="assets/js/project.js"></script>
   <script>
     // Simple tab handler for project.html (mirrors index variant)
     document.addEventListener('DOMContentLoaded', function(){

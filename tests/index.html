@@ -9,15 +9,18 @@
 <body>
   <div id="qunit"></div>
   <div id="qunit-fixture"></div>
-  <script src="../assets/js/app.boot.js"></script>
-  <script src="../assets/js/utils.js"></script>
   <script src="https://code.jquery.com/qunit/qunit-2.20.0.js"></script>
-  <script src="utils.test.js"></script>
-  <script src="validation.test.js"></script>
-  <script src="analytics.test.js"></script>
+  <script type="module">
+    import { generateId, todayISO, formatDateISO, validateProject, validateLog, validateBundle } from '../assets/js/utils.mod.js';
+    // Provide a tiny shim so existing test files (if any remain referencing App.utils) can be updated later
+    window.TestUtils = { generateId, todayISO, formatDateISO, validateProject, validateLog, validateBundle };
+  </script>
+  <script type="module" src="utils.test.js"></script>
+  <script type="module" src="validation.test.js"></script>
+  <script type="module" src="analytics.test.js"></script>
   <ul>
-      <li><a href="storage_test.html">Storage Tests</a></li>
-      <li><a href="utils_test.html">Utils Tests</a></li>
+  <li>(Legacy storage tests removed)</li>
+  <li><a href="roundtrip.html">Round Trip Smoke (Export/Import)</a></li>
     </ul>
 </body>
 </html>

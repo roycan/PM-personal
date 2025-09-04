@@ -1,164 +1,148 @@
-# Project Refactor & Teaching Plan (Hybrid multi-page, NO ES modules)
+# Project Plan (Simplified ES Modules, Two Pages)
 
-> Status: Planning phase (no refactor code committed yet)
->
-> Goal: Produce a hybrid multi-page static site (GitHub Pages friendly) that is simple for high-school students to understand and extend, using no ES modules — instead use small IIFE/global patterns for encapsulation and incremental lessons.
-
-## Guiding Principles
-- Keep code small, explicit, and well-named so students can follow easily.
-- Prefer clear separation of concerns (storage, rendering, wiring) without introducing module syntax.
-- Use IIFE or a single global `App` object to provide encapsulation while avoiding import/export complexity.
-- Keep deployment zero-build and mobile-friendly (CDN assets OK).
-- Add complexity only when it clearly benefits teaching outcomes.
-
-## Branch Roadmap (Incremental Learning Path)
-| Order | Branch Name | Focus / Lesson Outcome |
-|-------|-------------|------------------------|
-| 0 | `00-original` | Baseline snapshot (current unrefactored code) |
-| 1 | `01-separate-assets` | Split inline CSS/JS into files; keep single global script initially |
-| 2 | `02-data-model-and-storage` | Add `storage.js` (IIFE/global) with versioned export/import and schema validation |
-| 3 | `03-multi-page-structure` | Convert to hybrid pages: `index.html` (projects) + `project.html` (project detail) using URL params |
-| 4 | `04-state-and-rendering` | Introduce small renderer files and a simple pub/sub pattern using `App` globals |
-| 5 | `05-add-log-list-and-filters` | Implement logs table, search, date filters, sort controls |
-| 6 | `06-calendar-and-analytics` | Lazy-load FullCalendar on `project.html`, add analytics module |
-| 7 | `07-theming` | CSS custom properties + dark mode toggle persisted in storage |
-| 8 | `08-import-export-hardening` | Add safer import (validation + backup) and merge options |
-| 9 | `09-minimal-testing` | QUnit (or tiny harness) for pure helpers and storage validation |
-| 10 | `10-accessibility-pass` (deferred) | ARIA roles, modal focus, keyboard tabs |
-| 11 | `main` | Final merged main branch (rebased as lessons complete) |
-
-Branches can be reordered slightly to suit class pacing; core constraint: no ES modules in this repository's teaching flow.
-
-## File Layout (NO ES modules — IIFE / global `App` pattern)
-- `index.html` — Projects list, add project, import/export UI.
-- `project.html` — Per-project view (tabs: logs list, calendar, analytics).
-- `assets/css/` — `bulma.css` + `base.css`, `components.css`.
-- `assets/js/` (global/object-based):
-	- `app.boot.js` — creates the global container: `window.App = window.App || {}` and documents expected slots.
-	- `utils.js` — `App.utils = { ... }` (id gen, date helpers, small pure functions).
-	- `storage.js` — `App.storage = (function(){ ... })();` (versioned localStorage logic, export/import, validation/migration stubs).
-	- `render.projects.js` — attaches `App.render.projects` (project list UI used by `index.html`).
-	- `render.projectPage.js` — attaches `App.render.projectPage` (project detail UI used by `project.html`).
-	- `main.index.js` — page-specific wiring for `index.html` (wires events, depends on `App.storage` and `App.render.projects`).
-	- `main.project.js` — page-specific wiring for `project.html` (wires tabs, lazy-load calendar loader).
-	- `vendor/fullcalendar-loader.js` — tiny helper to inject FullCalendar script/styles on demand.
-- `assets/data/sample-data.json` — seed data for demos/reset.
-- `tests/` — static test pages using QUnit that exercise `App.utils` and `App.storage` helpers.
-- `PLAN.md`, `README.md`, `LICENSE`.
-
-Notes:
-- Each script adds a single well-documented property to `App` instead of using `export`.
-- HTML includes scripts in stable order: `bulma` CSS, `app.boot.js`, `utils.js`, `storage.js`, `render.*.js`, `main.*.js`.
-
-## Phase & Task Checklists (revised for NO ES modules)
-
-### Phase 0: Confirm Open Decisions
-- [ ] Confirm license (MIT recommended).
-- [ ] Confirm QUnit vs custom test harness (QUnit recommended via CDN).
-- [ ] Confirm branch roadmap.
-
-### Phase 1: Baseline Extraction (`01-separate-assets`)
-- [ ] Create `assets/css/` and extract inline styles to `base.css`.
-- [ ] Create `assets/js/app.boot.js` that establishes `window.App` and documents shape.
-- [ ] Move existing script into `assets/js/main.index.js` (preserve exact behavior, only reorganize).
-- [ ] Add `README.md` with quick deploy instructions.
-
-### Phase 2: Data Model & Storage (`02-data-model-and-storage`)
-- [ ] Create `assets/js/storage.js` as an IIFE attached to `App.storage`.
-- [ ] Include `DATA_VERSION` and namespaced localStorage keys (e.g., `pmlog:v1:projects`).
-- [ ] Implement `exportBundle()` and `importBundle(bundle, mode)` signatures and validation stubs (no UI prompts inside).
-- [ ] Add `assets/data/sample-data.json` and a `resetToSample()` helper.
-
-### Phase 3: Multi-page Structure (`03-multi-page-structure`)
-- [ ] Create `project.html` (project details) and update `index.html` to link to it with `?id=...`.
-- [ ] Implement URL parsing helpers in `App.utils` and default fallback behavior (sessionStorage fallback).
-- [ ] Ensure both pages include shared scripts in the correct order.
-
-### Phase 4: State & Rendering (`04-state-and-rendering`)
-- [x] Split UI code into `render.projects.js` and `render.projectPage.js` attaching to `App.render.*`.
-- [x] Introduce a tiny pub/sub on `App.events = { on, off, emit }` implemented via closures in `app.boot.js` or a small IIFE.
-- [x] Replace inline alerts with an inline status area on each page (simple DOM updates).
-
-### Phase 5: Logs List & Filters (`05-add-log-list-and-filters`)
-- [x] Add logs table UI (responsive) to `project.html` and implement text search and date range filters.
-- [x] Add simple sort controls and filtered-count display.
-
-### Phase 6: Calendar & Analytics (`06-calendar-and-analytics`)
-- [x] Add `vendor/fullcalendar-loader.js` that injects CDN script/link tags when calendar tab is opened.
-- [x] Implement calendar wiring in `main.project.js` to lazily instantiate calendar and attach event handlers to show modals.
-- [x] Move analytics calculations into `App.utils.analytics` as pure functions (testable).
-
-### Phase 7: Theming & UX (`07-theming`)
-- [x] Introduce CSS custom properties in `base.css` and add a dark mode toggle that persists to `App.storage`.
-
-### Phase 8: Import/Export & Safety (`08-import-export-hardening`)
-- [x] Validate import bundle structure before writing; provide backup download option.
-- [x] Implement merge vs overwrite modes (merge policy: match by id, fallback match by name).
-
-### Phase 9: Minimal Testing (`09-minimal-testing`)
-
-- [x] Add `tests/storage_test.html` and `tests/utils_test.html` that load the shared scripts and run QUnit tests against `App.storage` and `App.utils`.
-- [x] Keep tests focused on pure functions and storage validation.
-
-### Phase 10: Accessibility Pass (Deferred) (`10-accessibility-pass`)
-- [ ] Add keyboard tab navigation and modal focus trap later as a dedicated lesson.
-
-### Phase 11: Docs & Quality (`11-quality-and-docs`)
-
-- [ ] Add README, architecture notes (how `App` is composed), lesson plan per branch, CONTRIBUTING, LICENSE.
-- [x] Add architecture notes (`ARCHITECTURE.md`) and contributing guide (`CONTRIBUTING.md`).
-- [x] Add reset-to-sample data button & logic.
-- [x] Cross-link docs in `README.md`.
-- [ ] Markdown lint pass (headings, fenced code languages) (pending).
-
-## Script Ordering & Best Practices (Important when NOT using modules)
-
-Load order matters. Always include scripts in this sequence:
-
-1. `app.boot.js` (creates `window.App` and `App.events`)
-2. `utils.js` (pure helpers)
-3. `storage.js` (depends on utils)
-4. `render.*.js` (depends on storage & utils)
-5. `main.*.js` (wires DOM events; last)
-
-Document order clearly in `README.md` and top of each script with a short header comment.
-Keep each `App.*` surface small and well-documented to make later refactor to modules trivial.
-
-## Migration Path to ES modules (future)
-
-If you later want to teach ES modules, the migration is straightforward:
-
-- Replace `App.*` assignments with `export const` and import into consumers.
-- Update HTML to use `<script type="module">` for the entry points.
-- Keep tests and utilities as pure functions to minimize migration friction.
-
-## Data & Privacy (unchanged core proposals)
-
-- Keep namespaced keys and a `DATA_VERSION` in the export bundle.
-- Provide backup before overwrite and a sample-data reset.
-
-## Testing & Classroom Exercises
-
-Lesson exercises will show students how to:
-
-- Extract inline script into `utils.js` and confirm functionality.
-- Replace global functions with `App.*` members (IIFE attaching to `App`).
-- Implement `importBundle()` validation and test with `tests/storage.html`.
-
-## License Recommendation
-
-- Recommend MIT for educational reuse.
-
-## Next Actions
-
-- [ ] Confirm this NO-ES-modules plan. Once confirmed I'll start Phase 1: create `assets/` folders, extract inline styles, and add `app.boot.js` and `utils.js` skeletons (no behavioral changes yet).
+Status: Realignment after refactor drift.
+Primary Goal: A lean, teachable personal project log with the smallest architecture that satisfies the user stories in `inceptions/user-stories.md`.
 
 ---
-(End of revised plan)
+## Master Checklist (Progress at a Glance)
+Legend: [ ] not started, [~] in progress, [x] done, [>] deferred/optional
 
-## Next Action After Confirmation
+### Phase 0 – Cleanup & Alignment
+- [x] 0.1 Remove placeholder render files (`render.projects.js`, `render.projectPage.js`).
+- [x] 0.2 Remove duplicate event bus definition (keep one) in `app.boot.js`.
+- [x] 0.3 Add migration note to `README.md` about ES module transition & key rename.
+- [x] 0.4 Create placeholder `assets/js/data.js` (module scaffold, unused yet).
+- [x] 0.5 Draft new storage key constants & migration logic plan (doc only for now).
+- [x] 0.6 Decide safe timing to remove `storage.js` (deleted in Phase 4 after export/import parity).
+- [ ] 0.7 Validate no console errors after cleanup (manual smoke).
 
-Start Phase 1: create baseline branch, extract assets, add README, commit.
+### Phase 1 – Projects MVP
+- [x] 1.1 Convert HTML pages to use `<script type="module">` for new entry scripts. (index migrated; project page pending later phase)
+ - [x] 1.2 Implement `data.js` basic project CRUD (using old keys + migration to new keys `ppl:v1:*`).
+ - [x] 1.3 Implement `utils.js` (module export) for id/date helpers & validation skeletons.
+ - [x] 1.4 Build `index.js` (list + add project) using new modules (legacy scripts commented out for rollback if needed).
+ - [x] 1.5 Empty state messaging for zero projects.
+ - [x] 1.6 Manual migration test (old keys → new keys). (Instructions: clear new keys, seed legacy keys via console, reload, confirm projects appear, check `migrationStatus()` migrated=true.)
+- [x] 1.7 Remove `storage.js` after confirming functionality parity.
+
+### Phase 2 – Logs CRUD (Project Page Base)
+ - [x] 2.1 Add logs data methods to `data.js` (add, update, delete, list by project).
+ - [x] 2.2 Build initial `project.js` (add log only).
+ - [x] 2.3 Implement edit + delete.
+ - [x] 2.4 Inline row expansion (single open at a time).
+ - [x] 2.5 Basic placeholder analytics section container.
+ - [x] 2.6 Update README usage instructions (multi-page flow).
+
+### Phase 3 – Filtering & Sorting
+- [x] 3.1 Text search (results/observations/reflections).
+- [x] 3.2 Date range filter.
+- [x] 3.3 Sort direction toggle (date asc/desc).
+- [x] 3.4 Filtered count display.
+- [x] 3.5 Debounce search input (optional if needed).
+
+### Phase 4 – Export / Import
+- [x] 4.1 Export bundle generator (version, exportedAt, arrays). (Implemented earlier in `data.js`)
+- [x] 4.2 Validation function for bundle shape. (Enhanced deep validation in `utils.mod.js`)
+- [x] 4.3 Merge import (id-based) logic. (`importBundle` merge mode)
+- [x] 4.4 Overwrite import logic. (`importBundle` overwrite mode)
+- [x] 4.5 Simple UI (export button triggers download, import file input + mode selection).
+- [x] 4.6 Error & success messaging (non-alert inline).
+- [x] 4.7 Manual round‑trip test. (Automated script: `tests/roundtrip.html` + `window.runExportImportSmoke()`)
+
+### Phase 5 – Calendar + Basic Analytics
+- [ ] 5.1 Calendar lazy loader (dynamic script or dynamic import) triggered on tab activation.
+- [ ] 5.2 Calendar event build (one event per log, truncated title).
+- [ ] 5.3 Event click scroll/highlight matching log row.
+- [ ] 5.4 Basic analytics helper `computeBasicStats(logs)`.
+- [ ] 5.5 Render analytics (total, first, last, activeDaysLast30).
+- [ ] 5.6 Recompute analytics + refresh calendar after CRUD.
+
+### Phase 6 – Optional Enhancements
+- [x] 6.1 Dark mode toggle + persist (migrated to `theme.js`).
+- [ ] 6.2 Focus handling improvements (return focus to last control after actions).
+- [ ] 6.3 Loading states / skeleton (optional if needed).
+
+### Phase 7 – Tests (QUnit via CDN)
+- [x] 7.0 Migrate legacy test harness to ES modules (utils, validation, analytics).
+- [x] 7.1 Create `tests/index.html` (module aware) loading QUnit + modules.
+- [x] 7.2 Tests: id generation uniqueness.
+- [x] 7.3 Tests: date formatting / validation.
+- [x] 7.4 Tests: project/log validation.
+- [x] 7.5 Tests: bundle validation (good + bad cases) (partial via validation tests; extend later if needed).
+- [x] 7.6 Tests: analytics edge cases (0, 1, multiple logs; 30-day window) (basic coverage present; extend cases later).
+- [x] 7.7 Tests: import merge vs overwrite scenarios (covered by automated roundtrip smoke test).
+- [x] 7.8 Remove obsolete legacy test pages (`storage_test.html`, `utils_test.html`).
+- [ ] 7.9 Add dedicated analytics edge-case expansions (streaks, large sets) (optional / deferred).
+
+### Phase 8 – Accessibility & Documentation Polish
+- [ ] 8.1 Keyboard accessible tab navigation.
+- [ ] 8.2 Check color contrast (light/dark modes if dark enabled).
+- [ ] 8.3 ARIA labelling for interactive elements (calendar tab, log expansion rows).
+- [ ] 8.4 Expanded README (architecture, teaching notes, stretch ideas).
+- [ ] 8.5 CHANGELOG initial entries.
+
+### Deferred / Stretch
+- [>] Streak analytics.
+- [>] Multi-project aggregate analytics.
+- [>] Tooltips / color coding in calendar.
+- [>] Modal-based detail editing.
 
 ---
-(End of Plan)
+## Guiding Principles (Reference)
+- Favor boring, explicit code over clever abstractions.
+- Two HTML pages only.
+- Native ES modules; no build step.
+- LocalStorage + JSON export/import (versioned).
+- Calendar + minimal analytics only.
+- Incremental commits; no large mixed changes.
+
+## Module Layout (Target End State)
+- `assets/js/utils.js`
+- `assets/js/data.js`
+- `assets/js/index.js`
+- `assets/js/project.js`
+- `assets/js/calendarLoader.js` (Phase 5)
+- `assets/js/theme.js` (optional Phase 6)
+
+## Data Keys & Migration (Planned)
+- New keys: `ppl:v1:projects`, `ppl:v1:logs`.
+- One-time migration: if new keys empty and old `pmlog:v1:*` exist, copy then re-save under new names.
+
+Migration Logic Draft (Task 0.5):
+1. On first load of `data.js` implementation (Phase 1), read new keys.
+2. If both arrays empty AND (oldProjects || oldLogs) exist under `pmlog:v1:*`, then:
+	- Write old arrays to new keys.
+	- (Optional) Flag migration complete by setting a boolean key `ppl:migrated:v1` to prevent re-running if user later re-adds old keys manually.
+3. Do NOT delete old keys (keep reversible) — optional Phase 6 cleanup prompt may offer deletion.
+4. Export operations always use new keys; import writes only to new keys.
+
+## Validation Summary
+- Project: id, name.
+- Log: id, projectId exists, ISO date, results.
+- Bundle: version===1, arrays present, each element valid.
+
+## Calendar Simplicity
+- Month view only; event click focuses log row.
+- No editing in calendar for MVP.
+
+## Analytics Scope
+- totalLogs, firstDate, lastDate, activeDaysLast30.
+
+## Testing Strategy
+- QUnit CDN; focus on pure functions first.
+
+## Risk Mitigation
+- One concern per commit.
+- Manual smoke test list after each phase.
+- Keep README aligned with implementation.
+
+## Acceptance Criteria (Condensed)
+- All Phase 1–5 stories implemented without console errors.
+- Export/import round trip preserves data.
+- Calendar/list stay in sync after operations.
+
+## Next Immediate Actions (Executing Phase 0)
+Refer to Phase 0 checklist items (0.1–0.7). Update their status as we complete them.
+
+---
+End of Plan Checklist

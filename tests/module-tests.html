@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Module Tests - Personal Project Log</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.20.0.css">
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;padding:1rem;}
+    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;}
+  </style>
+</head>
+<body>
+  <header>
+    <h1 style="margin:0;">ES Module Test Suite</h1>
+    <nav><a href="index.html">Main Test Index</a></nav>
+  </header>
+  <p class="is-size-7">This page loads only the ES module based tests (no legacy globals).</p>
+  <div id="qunit"></div>
+  <div id="qunit-fixture"></div>
+  <script src="https://code.jquery.com/qunit/qunit-2.20.0.js"></script>
+  <script type="module" src="utils.test.js"></script>
+  <script type="module" src="validation.test.js"></script>
+  <script type="module" src="analytics.test.js"></script>
+</body>
+</html>

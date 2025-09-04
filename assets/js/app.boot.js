@@ -3,26 +3,12 @@
 window.App = window.App || {};
 
 (function(ns) {
-  // events pub/sub
+  // Phase 0: Consolidated single event bus (legacy until ES modules remove need)
   const handlers = new Map();
-
-  function on(eventName, fn) {
-    if (!handlers.has(eventName)) handlers.set(eventName, new Set());
-    handlers.get(eventName).add(fn);
-  }
-  function off(eventName, fn) {
-    if (!handlers.has(eventName)) return;
-    handlers.get(eventName).delete(fn);
-  }
-  function once(eventName, fn) {
-    function wrapper(payload) { fn(payload); off(eventName, wrapper); }
-    on(eventName, wrapper);
-  }
-  function emit(eventName, payload) {
-    if (!handlers.has(eventName)) return;
-    handlers.get(eventName).forEach(h => { try { h(payload); } catch (e) { console.error(e); } });
-  }
-
+  function on(eventName, fn) { if (!handlers.has(eventName)) handlers.set(eventName, new Set()); handlers.get(eventName).add(fn); }
+  function off(eventName, fn) { if (handlers.has(eventName)) handlers.get(eventName).delete(fn); }
+  function once(eventName, fn) { const wrap = (p)=>{ fn(p); off(eventName, wrap); }; on(eventName, wrap); }
+  function emit(eventName, payload) { if (handlers.has(eventName)) handlers.get(eventName).forEach(h=>{ try{ h(payload);}catch(e){ console.error(e);} }); }
   ns.events = { on, off, once, emit };
 
   // simple logger for teaching; no external deps
@@ -60,37 +46,7 @@ window.App = window.App || {};
 
   ns.theme = theme;
 
-  // Simple Pub/Sub event bus
-  const events = (function () {
-    const topics = {};
-    return {
-      on: function (topic, listener) {
-        if (!topics[topic]) {
-          topics[topic] = [];
-        }
-        topics[topic].push(listener);
-      },
-      off: function (topic, listener) {
-        if (!topics[topic]) {
-          return;
-        }
-        const index = topics[topic].indexOf(listener);
-        if (index > -1) {
-          topics[topic].splice(index, 1);
-        }
-      },
-      emit: function (topic, data) {
-        if (!topics[topic]) {
-          return;
-        }
-        topics[topic].forEach(function (listener) {
-          listener(data);
-        });
-      }
-    };
-  })();
-
-  window.App.events = events;
+  // Removed duplicate second pub/sub implementation (consolidated above).
 
   /**
    * Expected App structure:

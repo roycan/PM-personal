@@ -248,6 +248,8 @@
                         <strong>Overwrite:</strong> Delete all current data and replace it with the imported data.
                     </label>
                      <p class="is-size-7 ml-5">This will completely erase your current projects and logs. Use with caution.</p>
+                    <div id="import-summary" class="mt-4 is-size-7 has-text-grey"></div>
+                    <p id="import-status" class="mt-2 is-size-7"></p>
                 </div>
             </section>
             <footer class="modal-card-foot">
@@ -258,10 +260,11 @@
     </div>
 
 
-    <script src="assets/js/app.boot.js"></script>
-    <script src="assets/js/utils.js"></script>
-    <script src="assets/js/storage.js"></script>
-    <script src="assets/js/render.projects.js"></script>
-    <script src="assets/js/main.index.js"></script>
+    <!-- Legacy scripts removed in Phase 4 cleanup (storage / main / render) -->
+    <!-- ES module scripts (Phase 1) -->
+    <script type="module" src="assets/js/theme.js"></script>
+    <script type="module" src="assets/js/utils.mod.js"></script>
+    <script type="module" src="assets/js/data.js"></script>
+    <script type="module" src="assets/js/index.js"></script>
 </body>
 </html>
